@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>JudgeMe</title>
+    
+        
+        <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js" type="text/javascript"></script>
+        <script src="dist/js/core.js" type="text/javascript"></script>
+        <script src="dist/js/jquery.min.js"></script>
+        <script src="dist/js/app.js" type="text/javascript"></script>
+        <script src="dist/js/fabric.js" type="text/javascript"></script>
+    
+        <link rel="stylesheet" href="dist/css/fabric.min.css">
+        <link rel="stylesheet" href="dist/css/fabric.components.css">
+        <link rel="stylesheet" href="dist/css/app.css" type="text/css" />
+    </head>
+
+<body class="ms-font-m">
+    <div id="content-header">
+        <div class="padding">
+            <h1>JudgeMe</h1>
+        </div>
+    </div>
+    <div id="content-main">
+        <div class="padding">
+
+            <!-- NAVBAR -->
+            <div class="ms-Pivot ms-Pivot--tabs">
+                <ul class="ms-Pivot-links">
+                    <li class="ms-Pivot-link is-selected" data-content="apply" title="Apply Profile Preferences"
+                        tabindex="1">
+                        Apply
+                    </li>
+                    <li class="ms-Pivot-link " data-content="profiles" title="Manage Profiles" tabindex="1">
+                        Profiles
+                    </li>
+                </ul>
+
+                <!-- APPLY PROFILE PREFERENCES TAB -->
+                <div class="ms-Pivot-content apply-tab" data-content="apply">
+                    <label class="ms-Label"><strong>Profile Name:</strong></label>
+                    <label class="error-message ms-Label">Please Select a Profile</label>
+                    <select name="" id="home-select-profile" class="ms-TextField-field">
+                    </select>
+                    <label class="ms-Label"><strong>Preferences:</strong></label>
+
+                    <!-- PREFERENCES SECTION -->
+                    <div class="profile-preferences-section apply-section">
+
+                    </div>
+                    <button class="ms-Button ms-Button--primary" id="apply-profile" title="Apply Selected Profile Preferences to the Document">
+                        <span class="ms-Button-label">Apply Profile Preferences</span>
+                    </button>
+                    <label class="notification-message ms-Label">Applied...</label>
+                </div>
+
+                <!-- MANAGE PREFERENCES TAB -->
+                <div class="ms-Pivot-content profile-tab" data-content="profiles">
+                    <div class="profile-buttons">
+                        <button class="ms-Button ms-Button--primary" data-target="#make-profile-tab">
+                            <span class="ms-Button-label">Create Profile</span>
+                        </button>
+                        <button class="ms-Button ms-Button--primary" data-target="#edit-profile-tab">
+                            <span class="ms-Button-label">Modify Profile</span>
+                        </button>
+                        <button class="ms-Button ms-Button--primary" data-target="#delete-profile-tab">
+                            <span class="ms-Button-label">Delete Profile</span>
+                        </button>
+                    </div>
+
+                    <!-- MAKE NEW PROFILE SECTION -->
+                    <div class="profile-sections">
+                        <div class="profile-section" id="make-profile-tab">
+                            <div class="back-button">
+                                <button class="ms-Button ms-Button--primary">
+                                    <i class="ms-Icon ms-Icon--ChromeBack ms-Button-label" aria-hidden="true"></i>
+                                </button>
+                                <h3>Make a New Profile</h3>
+                            </div>
+                            <label for="" class="ms-Label"><strong>Profile Name:</strong></label>
+                            <label class="error-message ms-Label">Please Enter a Profile Name</label>
+                            <input type="text" class="ms-TextField-field" id="txt-newprofile-name">
+                            <label class="ms-Label"><strong>Preferences:</strong></label>
+
+                            <!-- PREFERENCES SECTION -->
+                            <div class="profile-preferences-section add-section">
+
+                            </div>
+                            <button class="ms-Button ms-Button--primary" id="btn-new-profile" title="Make a New Profile">
+                                <span class="ms-Button-label">Make Profile</span>
+                            </button>
+                            <label class="notification-message ms-Label">New Profile Created</label>
+                        </div>
+
+                        <!-- MODIFY PROFILE SECTION -->
+                        <div class="profile-section" id="edit-profile-tab">
+                            <div class="back-button">
+                                <button class="ms-Button ms-Button--primary">
+                                    <i class="ms-Icon ms-Icon--ChromeBack ms-Button-label" aria-hidden="true"></i>
+                                </button>
+                                <h3>Modify a Profile</h3>
+                            </div>
+                            <label for="" class="ms-Label"><strong>Select a Profile:</strong></label>
+                            <label class="error-message ms-Label">There Are No User Profiles</label>
+                            <select name="" class="ms-TextField-field" id="modify-select-profile">
+                            </select>
+                            <label class="ms-Label"><strong>Preferences:</strong></label>
+
+                            <!-- PREFERENCES SECTION -->
+                            <div class="profile-preferences-section modify-section">
+                                
+                            </div>
+                            <button class="ms-Button ms-Button--primary" id="btn-edit-profile" title="Save Changed to selected Profile">
+                                <span class="ms-Button-label">Save Changes</span>
+                            </button>
+                            <label class="notification-message ms-Label">Profile Modified</label>
+                        </div>
+
+                        <!-- DELETE PROFILE SECTION -->
+                        <div class="profile-section" id="delete-profile-tab">
+                            <div class="back-button">
+                                <button class="ms-Button ms-Button--primary">
+                                    <i class="ms-Icon ms-Icon--ChromeBack ms-Button-label" aria-hidden="true"></i>
+                                </button>
+                                <h3>Delete a profile</h3>
+                            </div>
+                            <div class="table-container">
+                                <table class="delete-profiles-table">
+                                    <col width="50%">
+                                    <col width="50%">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var PivotElements = document.querySelectorAll(".ms-Pivot");
+        for (var i = 0; i < PivotElements.length; i++) {
+            new fabric['Pivot'](PivotElements[i]);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,148 @@
+
+ #content-header {
+    background: #2a8dd4;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px; 
+    overflow: hidden;
+}
+
+#content-main {
+    background: #fff;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto; 
+}
+
+.padding {
+    padding: 15px;
+}
+
+option{
+    font-size: 14px;
+}
+
+#apply-profile{
+    margin-top: 0.5em;
+}
+
+.ms-Pivot-link{
+    width: calc((100% - 50px)/2);
+}
+
+.profile-preferences-section{
+    border: 1px solid #c8c8c8;
+}
+
+.ms-Button, .ms-TextField-field, .profile-preferences-section{
+    border-radius: 5px;
+}
+
+.preference-value{
+    font-weight: bold;
+}
+/* 
+.profile-preferences-section:first-of-type ul{
+    padding-left: 30px;
+} */
+
+.ms-Label{
+    /* font-size: 14px; */
+}
+.profile-buttons button{
+    display: block;
+    margin:0.5em auto;
+    width: 150px;
+}
+
+.profile-section{
+    display: none;
+}
+
+.back-button{
+    cursor: pointer;
+}
+
+.back-button .ms-Button{
+    padding: 3px 0 0 0;
+    height: 22px;
+    min-width: 22px;
+    /* width: 20px; */
+}
+
+.back-button h3{
+    display:inline-block;
+    margin: 0;
+}
+
+.profile-preferences-section{
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.table-container{
+    border-radius: 5px;
+    border: 1px solid #c8c8c8;
+    margin-top:0.5em;
+    padding: 0.2em;
+}
+
+.table-container table{
+    width: 100%;
+}
+
+.btn-deleteprofile{
+    background: #FF7588 !important;
+    color:white !important;
+    border: none;
+}
+
+.btn-deleteprofile:hover{
+    background: #FF8A9A !important;
+}
+
+.btn-deleteprofile:active{
+    background:  #FF586B !important;
+}
+
+.error-message{
+    color: #FF586B;
+    font-weight: bold;
+    display: none;
+}
+
+.notification-message{
+    color: green;
+    font-weight: bold;
+    display: none;
+}
+
+/* .profile-preferences-section label{
+    display: block;
+} */
+
+.delete-profiles-table tbody tr td:nth-of-type(2){
+    text-align: right;
+}
+
+.prefvalueLabel{
+    margin-right: 10px;
+}
+
+.prefLabel{
+    font-weight: bold;
+}
+
+label, select, button span{
+    font-size: 12px !important;
+}
+
+select{
+    padding: 2px !important;
+}
