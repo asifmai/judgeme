@@ -1,14 +1,16 @@
 {
-  "name": "word-add-in-funnystories",
+  "name": "word-add-in-judgeme",
   "license": "MIT",
   "main": "server.js",
-  "description": "Learn how to use content controls.",
+  "description": "Judgeme word add in",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/server.js",
+    "dev-start": "nodemon server/server.js"
+  },
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.12.3",
     "path": "^0.11.14"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/OfficeDev/Word-Add-in-SillyStories"
   }
 }

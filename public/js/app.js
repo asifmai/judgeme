@@ -1,7 +1,8 @@
 var profilesArray = [];
 var prefsObj = [];
-var profileJSONuri = "https://api.myjson.com/bins/18m48y";
-var prefsJSONuri = "https://api.myjson.com/bins/vtrpu";
+var profileJSONuri = "json/profiles.json";
+var prefsJSONuri = "json/prefs.json";
+
 
 Office.initialize = function (reason) {
     $(document).ready(function () {
@@ -77,10 +78,8 @@ Office.initialize = function (reason) {
 
 // LOAD PREFERENCES FROM JSON, STORE THEM IN ARRAY AND FETCH THEM TO UI
 function readFetchPreferences() {
-    console.log("Reading Preferences")
     $.getJSON(prefsJSONuri, function (data) {
         prefsObj = data;
-        console.log("Preferences Read...")
         prefsObj.forEach(function (pref) {
             var prefDisplayadd = '<div><label class="ms-Label prefLabel" title="' + pref.description + '">' + pref.title + ' :&nbsp;</label>';
             var prefDisplaymod = '<div><label class="ms-Label prefLabel" title="' + pref.description + '">' + pref.title + ' :&nbsp;</label>';
@@ -185,16 +184,13 @@ function addProfile() {
 
         newProfile.prefs = profilePrefs;
         profilesArray.push(newProfile);
-        var profilesString = JSON.stringify(profilesArray);
         $.ajax({
-            url: profileJSONuri,
-            type: "PUT",
-            data: profilesString,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
+            url: '/',
+            type: "POST",
+            data: {profiles : profilesArray},
             success: function (data, textStatus, jqXHR) {
                 readFetchProfiles();
-                var profName = $('#txt-newprofile-name').val('');
+                $('#txt-newprofile-name').val('');
                 var divs = $('.profile-preferences-section.add-section').find('div');
                 for (let i=0; i<divs.length;i++){
                     divs.eq(i).find('input[type=radio]').eq(0).prop('checked',true);
@@ -210,17 +206,14 @@ function addProfile() {
 // TO REMOVE A PROFILE
 function removeProfile(profileNo) {
     profilesArray.splice(profileNo, 1);
-    var profilesString = JSON.stringify(profilesArray);
-    $.ajax({
-        url: profileJSONuri,
-        type: "PUT",
-        data: profilesString,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data, textStatus, jqXHR) {
-            readFetchProfiles();
-        }
-    });
+        $.ajax({
+            url: '/',
+            type: "POST",
+            data: {profiles : profilesArray},
+            success: function (data, textStatus, jqXHR) {
+                readFetchProfiles();
+            }
+        });
 }
 
 // TO MODIFY A PROFILE
@@ -236,13 +229,10 @@ function modifyProfile() {
         };
 
         profilesArray[profNo].prefs = profilePrefs;
-        var profilesString = JSON.stringify(profilesArray);
         $.ajax({
-            url: profileJSONuri,
-            type: "PUT",
-            data: profilesString,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
+            url: '/',
+            type: "POST",
+            data: {profiles : profilesArray},
             success: function (data, textStatus, jqXHR) {
                 readFetchProfiles();
             }
@@ -258,32 +248,37 @@ function applyProfile(){
     var profNo = parseInt($('#home-select-profile option:checked').attr('value'));
     if (profNo >= 0){
         var selectedPrefs = profilesArray[profNo].prefs.slice("");
-        applySentenceSpacingPreference(selectedPrefs[0]);
-        applyFontPreference(selectedPrefs[1]);
-        applyAlignmentPreference(selectedPrefs[2]);
-        applycnparPreference(selectedPrefs[4], function(){
-            applyCnformatPreference(selectedPrefs[3]);
-        });
+        // applyFontPreference(selectedPrefs[1]);
+        // applyAlignmentPreference(selectedPrefs[2]);
+        applySentenceSpacingPreference(selectedPrefs[0], function(){
+            // applycnparPreference(selectedPrefs[4], function(){
+                // applyCnformatPreference(selectedPrefs[3],function(){
+                    
+                // });
+            // });
+        });    
+        // console.log('done')
         notifyMessage();
     } else {
         errorMessage();
     };
 };
 
-function applySentenceSpacingPreference(optionNo){
+function applySentenceSpacingPreference(optionNo, callback){
     Word.run(function (context) {
-        var exceptions = [".1",".2",".3",".4",".5",".6",".7",".8",".9",".0","2d","3d", " ibid", ". at", ". id",".  id",". corp",". co", ".com",".uk",".us",".gov",".org",".ca",".edu",".html",".asp",".io",".ed"]
-        var rule = prefsObj[0].values[optionNo].rule;
+        // List Of Exceptions in Search Results
+        var exceptions = [".1",".2",".3",".4",".5",".6",".7",".8",".9",".0","2d","3d",". id",".  id",". corp",". co", ".com",".uk",".us",".gov",".org",".ca",".edu",".html",".asp",".php",".io",".ed"]
         
+        var rule = prefsObj[0].values[optionNo].rule;
         var paras = context.document.body.paragraphs;
-        paras.load('items');
+        paras.load('text');
         return context.sync().then(function () {
             var res = [];
             paras.items.forEach(function(para){
                 var searchTermsComplete = [];
                 var searchTerms = [];
                 var revStr = para.text.split('').reverse().join('');
-                var reverseRexexp = /\b\w+\b *\.(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!dibi )(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
+                var reverseRexexp = /\b\w+\b(“?|\(?) *(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
                 var myArray;
                 while ((myArray = reverseRexexp.exec(revStr)) !== null) {
                     var result = myArray[0];
@@ -298,25 +293,38 @@ function applySentenceSpacingPreference(optionNo){
                     }
                 })
 
+                // Push search Results into res array
                 for (var index = 0; index < searchTerms.length; index++) {
-                    var rangeCollection = para.search(searchTerms[index]);
-                    res.push(rangeCollection);
+                    res.push(para.search(searchTerms[index], {matchWildcards: false}));
                 };
             })
             res.forEach(function(r){
                 r.load('items')
             })
             return context.sync().then(function(){
+                console.log(res)
                 for (let index = 0; index < res.length; index++) {
                     res[index].items.forEach(function(r){
                         if (!exceptions.some(function(exep) {return r.text.toLowerCase().includes(exep)})){
-                            if (!r.hyperlink){
-                                var newText = "." + rule + r.text.slice(1).trim();
-                                r.insertText(newText, Word.InsertLocation.replace)
+                            if (!r.hyperlink && !r.text.startsWith(". at")){
+                                if (r.text.startsWith('.”')){
+                                    var newText = ".”" + rule + r.text.slice(2).trim();
+                                    r.insertText(newText, Word.InsertLocation.replace);
+                                } else {
+                                    var newText = "." + rule + r.text.slice(1).trim();
+                                    r.insertText(newText, Word.InsertLocation.replace);
+                                }
+                                r.font.set({
+                                    italic: false,
+                                    underline: "None"
+                                });
                             }
-                        }
+                        }                        
                     })
-                }    
+                }
+                return context.sync().then(function(){
+                    callback();
+                });
             })
         });
     })
@@ -330,10 +338,13 @@ function applySentenceSpacingPreference(optionNo){
 
 function applyFontPreference(optionNo){
     Word.run(function (context) {
-        const body = context.document.body;
-            body.font.set({
-                name: prefsObj[1].values[optionNo].rule
-            });
+        let rule = prefsObj[1].values[optionNo].rule;
+        let body = context.document.body;
+        let header = context.document.sections.getFirst().getHeader('Primary'); 
+        let footer = context.document.sections.getFirst().getFooter('Primary');
+        body.font.name = rule;
+        footer.font.name = rule;
+        header.font.name = rule; 
         return context.sync();
     })
     .catch(function (error) {
@@ -346,14 +357,16 @@ function applyFontPreference(optionNo){
 
 function applyAlignmentPreference(optionNo){
     Word.run(function (context) {
+        var rule = prefsObj[2].values[optionNo].rule;
         var paras = context.document.body.paragraphs;
         paras.load("items/alignment");
-        return context.sync().then(function () {
+        return context.sync().then(function () {            
             paras.items.forEach(function (para) {
-                if (para.alignment != "Centered"){
-                    para.alignment = prefsObj[2].values[optionNo].rule;
+                if (para.alignment != "Centered" && para.alignment != rule){
+                    para.alignment = rule;
                 }
             });
+            return context.sync();
         });
     })
     .catch(function (error) {
@@ -364,7 +377,7 @@ function applyAlignmentPreference(optionNo){
     });;
 }
 
-function applyCnformatPreference(optionNo){
+function applyCnformatPreference(optionNo, callback){
     Word.run(function (context) {
         let body = context.document.body;
         body.load('text');
@@ -372,11 +385,12 @@ function applyCnformatPreference(optionNo){
             var searchTerms = findAllCases(body.text);
             var res = [];
             for (let i = 0; i < searchTerms.length; i++) {
-                res[i] = context.document.body.search(searchTerms[i]);
+                res[i] = context.document.body.search(searchTerms[i], {matchWildcards: false});
             };
-            res.push(context.document.body.search("<[iI]d.",{matchWildcards: true}));
+            res.push(context.document.body.search("<[iI]d>.",{matchWildcards: true}));
+            res.push(context.document.body.search("<[iI]bid>.",{matchWildcards: true}));
             for (let i =0; i<res.length; i++){
-                res[i].load('font');
+                res[i].load();
             };
             return context.sync().then(function () {
                 var results = [];
@@ -385,19 +399,53 @@ function applyCnformatPreference(optionNo){
                         results.push(r);
                     })
                 }
+                var newResults= [];
+                var newResultsShort = [];
+                // console.log(results.length)
                 for (let i = 0; i < results.length; i++) {
+                    if (!results[i].text.includes(' v. ') && !results[i].text.toLowerCase().includes('id.') && !results[i].text.toLowerCase().includes('ibid.')) {
+                        newResultsShort.push(results[i].search('<*>',{matchWildcards : true}));
+                    } else {
+                        newResults.push(results[i]);
+                    }
+                };
+
+                for (let i=0; i < newResults.length; i++){
                     if (prefsObj[3].values[optionNo].rule == "italic"){
-                            results[i].font.set({
-                                italic: true,
-                                underline: "None"
-                            });
+                        newResults[i].font.set({
+                            italic: true,
+                            underline: "None"
+                        });
                     } else if (prefsObj[3].values[optionNo].rule == "underline"){
-                        results[i].font.set({
+                        newResults[i].font.set({
                             underline: "Single",
                             italic: false
                         });
                     };
                 };
+                for (let i = 0; i < newResultsShort.length; i++) {
+                    newResultsShort[i].load();
+                }
+                return context.sync().then(function(){
+                    for (let i = 0; i < newResultsShort.length; i++) {
+                        newResultsShort[i].items.forEach(function(r){
+                            if (prefsObj[3].values[optionNo].rule == "italic"){
+                                r.font.set({
+                                    italic: true,
+                                    underline: "None"
+                                });
+                            } else if (prefsObj[3].values[optionNo].rule == "underline"){
+                                r.font.set({
+                                    underline: "Single",
+                                    italic: false
+                                });
+                            };      
+                        })                  
+                    }
+                    return context.sync().then(function(){
+                        callback();
+                    });
+                })
             });
         });
     })
@@ -411,52 +459,88 @@ function applyCnformatPreference(optionNo){
 
 function applycnparPreference(optionNo, callback){
     Word.run(function (context) {
-        let body = context.document.body;
-        body.load('text');
+        let paras = context.document.body.paragraphs;
+        paras.load('items');
         return context.sync().then(function () {
-            var searchTerms = findAllCases(body.text);
-            var searchTermsAround = [];
-            searchTerms.forEach(function(s){
-                searchTermsAround.push("?" + s + "?");
+            var rangeCollects = [];
+            var rangeCollectsAround = [];
+            paras.items.forEach(function(para){
+                if (para.text.length > 100){
+                    var searchTerms = findAllCasesComplete(para.text);
+                    var searchTermsAround = findAllCasesCompleteAround(para.text);
+                    if (searchTerms.length > 0){
+                        for (let index = 0; index < searchTerms.length; index++) {
+                            rangeCollects.push(para.search(searchTerms[index], {matchWildcards: false}));
+                        }
+                    }
+                    if (searchTermsAround.length > 0){
+                        for (let index = 0; index < searchTermsAround.length; index++) {
+                            rangeCollectsAround.push(para.search(searchTermsAround[index], {matchWildcards: false}))   
+                        }
+                    }
+                }
             })
-            var res = [];
-            var resAround = [];
-            for (let i = 0; i < searchTerms.length; i++) {
-                res[i] = context.document.body.search(searchTerms[i]);
-                resAround[i] = context.document.body.search(searchTermsAround[i],{matchWildcards:true})
-            }
-            res.push(context.document.body.search("<[iI]d.",{matchWildcards: true}));
-            resAround.push(context.document.body.search("?<[iI]d.?",{matchWildcards: true}))
+            // console.log('Range Collections Length')
+            // console.log(rangeCollects.length)
+            // console.log(rangeCollectsAround.length)
             
-            for (let i =0; i <res.length; i++){
-                res[i].load('items');
-                resAround[i].load('items');
-            };
-            return context.sync().then(function () {
-                var results = [];
-                var resultsAround = [];
-                for (let b=0; b<res.length;b++){
-                    res[b].items.forEach(function(r){
-                        results.push(r);
-                    });
-                    resAround[b].items.forEach(function(r){
-                        resultsAround.push(r);
-                    });
-                };
-                for (let i = 0; i < results.length; i++) {
-                    if (prefsObj[4].values[optionNo].rule == "yes"){
-                        if (resultsAround[i].text[0] != "(" || resultsAround[i].text[resultsAround[i].text.length-1] != ")"){
-                            results[i].insertText("(", Word.InsertLocation.start)
-                            results[i].insertText(")", Word.InsertLocation.end)
-                        };
-                    } else if (prefsObj[4].values[optionNo].rule == "no"){
-                        if (resultsAround[i].text[0] == "(" && resultsAround[i].text[resultsAround[i].text.length-1] == ")"){
-                            resultsAround[i].insertText(results[i].text, Word.InsertLocation.replace);
-                        };
-                    };
-                };
-                callback();
-            });
+            for (let index = 0; index < rangeCollects.length; index++) {
+                rangeCollects[index].load();
+            }
+            for (let index = 0; index < rangeCollectsAround.length; index++) {
+                rangeCollectsAround[index].load();
+            }
+            return context.sync().then(function(){
+                var allRanges = [];
+                var allRangesAround = [];
+                for (let index = 0; index < rangeCollects.length; index++) {
+                    rangeCollects[index].items.forEach(function(rc){
+                        allRanges.push(rc);
+                    })
+                }
+                for (let index = 0; index < rangeCollectsAround.length; index++) {
+                    rangeCollectsAround[index].items.forEach(function(rc){
+                        allRangesAround.push(rc);
+                    })
+                }
+                // console.log(allRanges.length)
+                // console.log(allRangesAround.length)
+                var rule = prefsObj[4].values[optionNo].rule;
+
+                for (let index = 0; index < allRanges.length; index++) {
+                    // console.log(allRanges[index].text)
+                    // console.log(allRangesAround[index].text)
+                    if (rule == "yes"){
+                        if (allRangesAround[index]){
+                            if(allRangesAround[index].text[0] != "("){
+                                allRanges[index].insertText("(", Word.InsertLocation.start)
+                            }
+                            if(allRangesAround[index].text[allRangesAround[index].text.length-1] != ")"){
+                                allRanges[index].insertText(")", Word.InsertLocation.end)
+                            }
+                        } else {
+                            allRanges[index].insertText("(", Word.InsertLocation.start)
+                            allRanges[index].insertText(")", Word.InsertLocation.end)
+                        }
+                        allRanges[index].font.set({
+                            italic: false,
+                            underline: "None"
+                        })
+                    } else if (rule == "no"){
+                        if (allRangesAround[index].text[0] == "(" && allRangesAround[index].text[allRangesAround[index].text.length-1] == ")"){
+                            allRangesAround[index].insertText(allRanges[index].text, Word.InsertLocation.replace);
+                            allRangesAround[index].font.set({
+                                italic: false,
+                                underline: "None"
+                            })
+                        }
+                    }
+                }
+
+                return context.sync().then(function(){
+                    callback();
+                });
+            });            
         });
     })
     .catch(function (error) {
@@ -467,9 +551,80 @@ function applycnparPreference(optionNo, callback){
     });
 };
 
+function findAllCasesComplete(str){
+    // var regex1 = /([A-Z][A-Za-z,\.’]+ |in |of |a |minor |e\.g\., |see |See |e\.g\.|also )*v\.\s*([A-Z][a-zA-Z,\.’]+\s*|of |(\(\d*\))|Cal\.|App\.|,|-|–|\b\d*\b|\b\d\w{1,2}\b| {1})*/g;
+    var regex1 = /(([A-Z][A-Za-z,\.’]+ |in |of |a |minor |e\.g\., |see |See |e\.g\.|also )*v\.\s*([A-Z][a-zA-Z,\.’]+\s*|of |(\(\d*\))|Cal\.|App\.|,|-|–|\b\d*\b|\b\d\w{1,2}\b| {1}|;)*){1,}/g;
+    // var regex2 = /([A-Z][A-Za-z,\.’]+ |in |of |a |minor |also |see |e\.g\.,| |e\.g\.)*supra, (\b\d+\b|Cal\.|at|App\.|\d\w{1,}|–| )*/g;
+    var regex2 = /(([A-Z][A-Za-z,\.’]+ |in |of |a |minor |also |see |e\.g\.,| |e\.g\.)*supra, (\b\d+\b|Cal\.|at|App\.|\d\w{1,}|–| |;)*){1,}/g;
+    // var regex3 = /\b[iI]d\b\.(at| |¶|\d|-|–|,|Ex\.|Exs\.|ex\.|exs\.|“[A-Z]”|[A-Z])*/g;
+    // var regex3 = /\b[iI]d\b\.(at| |¶|\d|-|–|,|Ex\.|Exs\.|ex\.|exs\.|“[A-Z]”|[A-Z] )*/g;
+    var regex3 = /(\b[iI]d\b\.(at| |¶|\d|-|–|,|Ex\.|Exs\.|ex\.|exs\.|;|“[A-Z]”|[A-Z] )*){1,}/g;
+    var regex4 = /\b[iI]bid\b\./g;
+    var Terms1 = findCaseNamesComplete(regex1, str);
+    var Terms2 = findCaseNamesComplete(regex2, str);
+    var Terms3 = findCaseNamesComplete(regex3, str);
+    var Terms4 = findCaseNamesComplete(regex4, str);
+    var Terms = [];
+    Terms1.concat(Terms2, Terms3, Terms4).forEach(function(item){
+        if (Terms.indexOf(item) == -1){
+            Terms.push(item);
+        }
+    });
+    return Terms;
+}
+
+function findAllCasesCompleteAround(str){
+    // var regex1 = /.?([A-Z][A-Za-z,\.’]+ |in |of |a |minor |e\.g\., |see |See |e\.g\.|also )*v\.\s*([A-Z][a-zA-Z,\.’]+\s*|of |(\(\d*\))|Cal\.|App\.|,|-|–|\b\d*\b|\b\d\w{1,2}\b| {1})*.?/g;
+    var regex1 = /.?(([A-Z][A-Za-z,\.’]+ |in |of |a |minor |e\.g\., |see |See |e\.g\.|also )*v\.\s*([A-Z][a-zA-Z,\.’]+\s*|of |(\(\d*\))|Cal\.|App\.|,|-|–|\b\d*\b|\b\d\w{1,2}\b| {1}|;)*){1,}.?/g;
+    // var regex2 = /.?([A-Z][A-Za-z,\.’]+ |in |of |a |minor |also |see |e\.g\.,| |e\.g\.)*supra, (\b\d+\b|Cal\.|at|App\.|\d\w{1,}|–| )*.?/g;
+    var regex2 = /.?(([A-Z][A-Za-z,\.’]+ |in |of |a |minor |also |see |e\.g\.,| |e\.g\.)*supra, (\b\d+\b|Cal\.|at|App\.|\d\w{1,}|–| |;)*){1,}.?/g;
+    // var regex3 = /.?\b[iI]d\b\.(at| |¶|\d|-|–|,|Ex\.|Exs\.|ex\.|exs\.|“[A-Z]”|[A-Z])*.?/g;
+    // var regex3 = /.?\b[iI]d\b\.(at| |¶|\d|-|–|,|Ex\.|Exs\.|ex\.|exs\.|“[A-Z]”|[A-Z] )*.?/g;
+    var regex3 = /.?(\b[iI]d\b\.(at| |¶|\d|-|–|,|Ex\.|Exs\.|ex\.|exs\.|;|“[A-Z]”|[A-Z] )*){1,}.?/g;
+    var regex4 = /.?\b[iI]bid\b\..?/g;
+    var Terms1 = findCaseNamesComplete(regex1, str);
+    var Terms2 = findCaseNamesComplete(regex2, str);
+    var Terms3 = findCaseNamesComplete(regex3, str);
+    var Terms4 = findCaseNamesComplete(regex4, str);
+    var Terms = []
+
+    Terms1.concat(Terms2, Terms3, Terms4).forEach(function(item){
+        if (Terms.indexOf(item) == -1){
+            Terms.push(item);
+        }
+    });
+    return Terms;
+}
+
+function findCaseNamesComplete(regex, str){
+    var searchTermsComplete = [];
+    var myArray;
+    while ((myArray = regex.exec(str)) !== null) {
+        var result = myArray[0];
+        searchTermsComplete.push(result)
+    }
+    for (let index = 0; index < searchTermsComplete.length; index++) {
+        searchTermsComplete[index] = searchTermsComplete[index].trim();
+        if(searchTermsComplete[index][searchTermsComplete[index].length-1] == ";"){
+            searchTermsComplete[index] = searchTermsComplete[index].slice(0, searchTermsComplete[index].length-1)
+        }
+        if(searchTermsComplete[index][searchTermsComplete[index].length-1] == ","){
+            searchTermsComplete[index] = searchTermsComplete[index].slice(0, searchTermsComplete[index].length-1)
+        }
+        if(searchTermsComplete[index].toLocaleLowerCase().startsWith("in ")){
+            searchTermsComplete[index] = searchTermsComplete[index].slice(3, searchTermsComplete[index].length)
+        }
+        if(searchTermsComplete[index].startsWith("AAC. ")){
+            searchTermsComplete[index] = searchTermsComplete[index].slice(5, searchTermsComplete[index].length)
+        }
+        searchTermsComplete[index] = searchTermsComplete[index].trim();
+    }
+    return searchTermsComplete;
+}
+
 function findAllCases(str){
     var regex1 = /([A-Z][A-Za-z,\.’]+ |in |of |a |minor )*v\.\s([A-Z][a-zA-Z,\.’]+(\s|\))|of )*/g;
-    var regex2 = /([A-Z][A-Za-z,\.’]+ |in |of |a |minor )*supra/g;
+    var regex2 = /([A-Z][A-Za-z,\.’]+ |in |of |a |minor )*supra,/g;
     var Terms1 = findCaseNames(regex1, str);
     var Terms2 = findCaseNames(regex2, str);
     var Terms = [];
@@ -490,9 +645,9 @@ function findCaseNames(regex, str){
     }
     for (let index = 0; index < searchTermsComplete.length; index++) {
         searchTermsComplete[index] = searchTermsComplete[index].trim();
-        if(searchTermsComplete[index][searchTermsComplete[index].length-1] == ","){
-            searchTermsComplete[index] = searchTermsComplete[index].slice(0, searchTermsComplete[index].length-1)
-        }
+        // if(searchTermsComplete[index][searchTermsComplete[index].length-1] == ","){
+            // searchTermsComplete[index] = searchTermsComplete[index].slice(0, searchTermsComplete[index].length-1)
+        // }
         if(searchTermsComplete[index].toLocaleLowerCase().includes("see ")){
             searchTermsComplete[index] = searchTermsComplete[index].slice(searchTermsComplete[index].toLocaleLowerCase().indexOf("see ") + 4, searchTermsComplete[index].length)
         }
@@ -502,6 +657,9 @@ function findCaseNames(regex, str){
         if(searchTermsComplete[index][searchTermsComplete[index].length-1] ==")"){
             searchTermsComplete[index] = searchTermsComplete[index].slice(0, searchTermsComplete[index].length-1);
         }
+        // if(searchTermsComplete[index][searchTermsComplete[index].length-1] ==")"){
+        //     searchTermsComplete[index] = searchTermsComplete[index].slice(0, searchTermsComplete[index].length-1);
+        // }
     }
     return searchTermsComplete;
 }

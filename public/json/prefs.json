@@ -1,0 +1,81 @@
+[{
+        "name": "sspace",
+        "title": "Sentence Spacing",
+        "description": "Change Spacing Between Sentences",
+        "values": [{
+                "title": "Single Space",
+                "description":"Switch to Single Space Between Sentences",
+                "rule": " "
+            },
+            {
+                "title": "Double Space",
+                "description": "Switch to Double Space Between Sentences",
+                "rule": "  "
+            }
+        ]
+    },
+    {
+        "name": "font",
+        "title": "Font Style",
+        "description":"Change Font Style of the Document",
+        "values": [{
+                "title": "Arial",
+                "description":"Change the Document Font Style to Arial",
+                "rule": "Arial"
+            },
+            {
+                "title": "Times New Roman",
+                "description":"Change the Document Font Style to Times New Roman",
+                "rule": "Times New Roman"
+            }
+        ]
+    },
+    {
+        "name": "alignment",
+        "title": "Horizontal Alignment",
+        "description":"Change Document's Paragraph Horizontal Alignment",
+        "values": [{
+                "title": "Left Align",
+                "description":"Change Paragraph Alignment to Left Align",
+                "rule": "Left"
+            },
+            {
+                "title": "Justified",
+                "description":"Change Paragraph Alignment to Justified",
+                "rule": "Justified"
+            }
+        ]
+    },
+    {
+        "name": "cnformat",
+        "title": "Case Law Case Name",
+        "description":"Change Format of Case Law Case Name",
+        "values": [{
+                "title": "Italics",
+                "description":"Change Case Names Format to Italics",
+                "rule": "italic"
+            },
+            {
+                "title": "Underline",
+                "description": "Change Case Names Format to Underline",
+                "rule": "underline"
+            }
+        ]
+    },
+    {
+        "name": "cnpar",
+        "title": "Case Law Parentheses",
+        "description":"Add Parentheses Around Case Names",
+        "values": [{
+                "title": "Yes",
+                "description":"Change Case Law to Have Parentheses Around It",
+                "rule": "yes"
+            },
+            {
+                "title": "No",
+                "description":"Change Case Law to Not Have Parentheses Around It",
+                "rule": "no"
+            }
+        ]
+    }
+]
