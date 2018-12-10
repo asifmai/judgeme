@@ -281,7 +281,7 @@ function applySentenceSpacingPreference(optionNo, callback){
                 var searchTermsComplete = [];
                 var searchTerms = [];
                 var revStr = para.text.split('').reverse().join('');
-                var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
+                var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!nssa )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
                 var myArray;
                 while ((myArray = reverseRexexp.exec(revStr)) !== null) {
                     var result = myArray[0];
