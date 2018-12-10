@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const localPath = path.join(__dirname, "../public");
 const app = express();
-//Edited
+
 // Initialize variables. 
 const port = process.env.PORT || 8080;  
 
@@ -18,12 +18,12 @@ app.get('/', function (req, res) {
     res.sendFile(homepage);
 });
 
-// Route to New, Delete, Edit Profile
+// Route for New, Delete, Edit Profile
 app.post('/', function(req, res){
     var jsonPath = path.join(localPath , 'json/profiles.json');
     var dataToWrite = JSON.stringify(req.body.profiles)
     fs.writeFileSync(jsonPath, dataToWrite)
-    res.send('Success')
+    res.send('Successfully Edited Profiles')
 })
 
 // Start the app.  

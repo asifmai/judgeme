@@ -246,19 +246,22 @@ function modifyProfile() {
 // TO APPLY A PROFILE
 function applyProfile(){
     var profNo = parseInt($('#home-select-profile option:checked').attr('value'));
+
     if (profNo >= 0){
+        $("#apply-profile").attr("disabled", "disabled");
+        $("#apply-profile span").text("Applying...");
         var selectedPrefs = profilesArray[profNo].prefs.slice("");
-        // applyFontPreference(selectedPrefs[1]);
-        // applyAlignmentPreference(selectedPrefs[2]);
+        applyFontPreference(selectedPrefs[1]);
+        applyAlignmentPreference(selectedPrefs[2]);
         applySentenceSpacingPreference(selectedPrefs[0], function(){
-            // applycnparPreference(selectedPrefs[4], function(){
-                // applyCnformatPreference(selectedPrefs[3],function(){
-                    
-                // });
-            // });
+            applycnparPreference(selectedPrefs[4], function(){
+                applyCnformatPreference(selectedPrefs[3],function(){
+                        $("#apply-profile span").text("Apply Profile Preferences");
+                        $("#apply-profile").removeAttr("disabled");
+                        notifyMessage();
+                });
+            });
         });    
-        // console.log('done')
-        notifyMessage();
     } else {
         errorMessage();
     };
@@ -278,7 +281,7 @@ function applySentenceSpacingPreference(optionNo, callback){
                 var searchTermsComplete = [];
                 var searchTerms = [];
                 var revStr = para.text.split('').reverse().join('');
-                var reverseRexexp = /\b\w+\b(“?|\(?) *(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
+                var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
                 var myArray;
                 while ((myArray = reverseRexexp.exec(revStr)) !== null) {
                     var result = myArray[0];
@@ -302,11 +305,12 @@ function applySentenceSpacingPreference(optionNo, callback){
                 r.load('items')
             })
             return context.sync().then(function(){
-                console.log(res)
                 for (let index = 0; index < res.length; index++) {
                     res[index].items.forEach(function(r){
+
                         if (!exceptions.some(function(exep) {return r.text.toLowerCase().includes(exep)})){
                             if (!r.hyperlink && !r.text.startsWith(". at")){
+                                console.log(r.text);
                                 if (r.text.startsWith('.”')){
                                     var newText = ".”" + rule + r.text.slice(2).trim();
                                     r.insertText(newText, Word.InsertLocation.replace);
@@ -342,10 +346,20 @@ function applyFontPreference(optionNo){
         let body = context.document.body;
         let header = context.document.sections.getFirst().getHeader('Primary'); 
         let footer = context.document.sections.getFirst().getFooter('Primary');
-        body.font.name = rule;
-        footer.font.name = rule;
-        header.font.name = rule; 
-        return context.sync();
+        body.load('font/name')
+        header.load('font/name')
+        footer.load('font/name')
+        return context.sync().then(function(){
+            if  (body.font.name != rule){
+                body.font.name = rule;
+            }
+            if (footer.font.name != rule){
+                footer.font.name = rule;
+            }
+            if(header.font.name != rule){
+                header.font.name = rule; 
+            }
+        })
     })
     .catch(function (error) {
         console.log("Error: " + error);
@@ -366,7 +380,6 @@ function applyAlignmentPreference(optionNo){
                     para.alignment = rule;
                 }
             });
-            return context.sync();
         });
     })
     .catch(function (error) {
