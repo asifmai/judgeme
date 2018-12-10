@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const localPath = path.join(__dirname, "../public");
 const app = express();
-
+//Edited
 // Initialize variables. 
 const port = process.env.PORT || 8080;  
 
