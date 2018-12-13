@@ -302,13 +302,13 @@ function applySentenceSpacingPreference(optionNo, callback){
                     res.push(para.search(searchTerms[index], {matchWildcards: false}));
                 };
             })
-            res.forEach(function(r){
-                r.load('items')
-            })
+            for (let index = 0; index < res.length; index++) {
+                res[index].load('items');   
+            }
             return context.sync().then(function(){
                 for (let index = 0; index < res.length; index++) {
+                    
                     res[index].items.forEach(function(r){
-
                         if (!exceptions.some(function(exep) {return r.text.toLowerCase().includes(exep)})){
                             if (!r.hyperlink && !r.text.startsWith(". at")){
                                 console.log(r.text);
