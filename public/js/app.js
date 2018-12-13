@@ -251,8 +251,9 @@ function applyProfile(){
         $("#apply-profile").attr("disabled", "disabled");
         $("#apply-profile span").text("Applying...");
         var selectedPrefs = profilesArray[profNo].prefs.slice("");
-        applyFontPreference(selectedPrefs[1]);
-        applyAlignmentPreference(selectedPrefs[2]);
+        applyFontPreference(selectedPrefs[1], function(){
+            applyAlignmentPreference(selectedPrefs[2], function(){});
+        });
         applySentenceSpacingPreference(selectedPrefs[0], function(){
             applycnparPreference(selectedPrefs[4], function(){
                 applyCnformatPreference(selectedPrefs[3],function(){
@@ -281,7 +282,7 @@ function applySentenceSpacingPreference(optionNo, callback){
                 var searchTermsComplete = [];
                 var searchTerms = [];
                 var revStr = para.text.split('').reverse().join('');
-                var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!nssa )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
+                var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
                 var myArray;
                 while ((myArray = reverseRexexp.exec(revStr)) !== null) {
                     var result = myArray[0];
@@ -313,10 +314,10 @@ function applySentenceSpacingPreference(optionNo, callback){
                                 console.log(r.text);
                                 if (r.text.startsWith('.”')){
                                     var newText = ".”" + rule + r.text.slice(2).trim();
-                                    r.insertText(newText, Word.InsertLocation.replace);
+                                    r.insertText(newText, "Replace");
                                 } else {
                                     var newText = "." + rule + r.text.slice(1).trim();
-                                    r.insertText(newText, Word.InsertLocation.replace);
+                                    r.insertText(newText, "Replace");
                                 }
                                 r.font.set({
                                     italic: false,
@@ -340,25 +341,28 @@ function applySentenceSpacingPreference(optionNo, callback){
     });
 }
 
-function applyFontPreference(optionNo){
+function applyFontPreference(optionNo, callback){
     Word.run(function (context) {
         let rule = prefsObj[1].values[optionNo].rule;
-        let body = context.document.body;
+        let paras = context.document.body.paragraphs;
         let header = context.document.sections.getFirst().getHeader('Primary'); 
         let footer = context.document.sections.getFirst().getFooter('Primary');
-        body.load('font/name')
+        paras.load('font/name')
         header.load('font/name')
         footer.load('font/name')
         return context.sync().then(function(){
-            if  (body.font.name != rule){
-                body.font.name = rule;
-            }
-            if (footer.font.name != rule){
+            // if  (body.font.name != rule){
+                paras.items.forEach(function(para){
+                    para.font.name = rule;
+                })
+            // }
+            // if (footer.font.name != rule){
                 footer.font.name = rule;
-            }
-            if(header.font.name != rule){
+            // }
+            // if(header.font.name != rule){
                 header.font.name = rule; 
-            }
+            // }
+            return context.sync().then(callback())
         })
     })
     .catch(function (error) {
@@ -369,7 +373,7 @@ function applyFontPreference(optionNo){
     });
 }
 
-function applyAlignmentPreference(optionNo){
+function applyAlignmentPreference(optionNo, callback){
     Word.run(function (context) {
         var rule = prefsObj[2].values[optionNo].rule;
         var paras = context.document.body.paragraphs;
@@ -380,6 +384,7 @@ function applyAlignmentPreference(optionNo){
                     para.alignment = rule;
                 }
             });
+            return context.sync().then(callback())
         });
     })
     .catch(function (error) {
@@ -493,9 +498,6 @@ function applycnparPreference(optionNo, callback){
                     }
                 }
             })
-            // console.log('Range Collections Length')
-            // console.log(rangeCollects.length)
-            // console.log(rangeCollectsAround.length)
             
             for (let index = 0; index < rangeCollects.length; index++) {
                 rangeCollects[index].load();
@@ -516,13 +518,9 @@ function applycnparPreference(optionNo, callback){
                         allRangesAround.push(rc);
                     })
                 }
-                // console.log(allRanges.length)
-                // console.log(allRangesAround.length)
                 var rule = prefsObj[4].values[optionNo].rule;
 
                 for (let index = 0; index < allRanges.length; index++) {
-                    // console.log(allRanges[index].text)
-                    // console.log(allRangesAround[index].text)
                     if (rule == "yes"){
                         if (allRangesAround[index]){
                             if(allRangesAround[index].text[0] != "("){
