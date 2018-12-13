@@ -251,19 +251,24 @@ function applyProfile(){
         $("#apply-profile").attr("disabled", "disabled");
         $("#apply-profile span").text("Applying...");
         var selectedPrefs = profilesArray[profNo].prefs.slice("");
-        applyFontPreference(selectedPrefs[1], function(){
-            applyAlignmentPreference(selectedPrefs[2], function(){
-                applySentenceSpacingPreference(selectedPrefs[0], function(){
-                    applycnparPreference(selectedPrefs[4], function(){
+        // applyFontPreference(selectedPrefs[1], function(){
+            // console.log('Font Preference Applied')
+            // applyAlignmentPreference(selectedPrefs[2], function(){
+                // console.log('Alignment Preference Applied')
+                // applySentenceSpacingPreference(selectedPrefs[0], function(){
+                    // console.log('Spacing Preference Applied')
+                    // applycnparPreference(selectedPrefs[4], function(){
+                        // console.log('Paranthesis Preference Applied')
                         applyCnformatPreference(selectedPrefs[3],function(){
+                            console.log('Case Name Preference Applied')
                                 $("#apply-profile span").text("Apply Profile Preferences");
                                 $("#apply-profile").removeAttr("disabled");
                                 notifyMessage();
                         });
-                    });
-                });    
-            });
-        });
+                    // });
+                // });    
+            // });
+        // });
     } else {
         errorMessage();
     };
@@ -314,7 +319,7 @@ function applySentenceSpacingPreference(optionNo, callback){
                     res[index].items.forEach(function(r){
                         if (!exceptions.some(function(exep) {return r.text.toLowerCase().includes(exep)})){
                             if (!r.hyperlink && !r.text.startsWith(". at")){
-                                console.log(r.text);
+                                // console.log(r.text);
                                 if (r.text.startsWith('.”')){
                                     var newText = ".”" + rule + r.text.slice(2).trim();
                                     r.insertText(newText, "Replace");
@@ -408,8 +413,8 @@ function applyCnformatPreference(optionNo, callback){
             for (let i = 0; i < searchTerms.length; i++) {
                 res[i] = context.document.body.search(searchTerms[i], {matchWildcards: false});
             };
-            res.push(context.document.body.search("<[iI]d>.",{matchWildcards: true}));
-            res.push(context.document.body.search("<[iI]bid>.",{matchWildcards: true}));
+            res.push(body.search("<[iI]d>.",{matchWildcards: true}));
+            res.push(body.search("<[iI]bid>.",{matchWildcards: true}));
             for (let i =0; i<res.length; i++){
                 res[i].load('font/italic, font/underline, text');
             };
@@ -424,8 +429,8 @@ function applyCnformatPreference(optionNo, callback){
                 var newResultsShort = [];
                 // console.log(results.length)
                 for (let i = 0; i < results.length; i++) {
-                    if (!results[i].text.includes(' v. ') && !results[i].text.toLowerCase().includes('id.') && !results[i].text.toLowerCase().includes('ibid.')) {
-                        newResultsShort.push(results[i].search('<*>',{matchWildcards : true}));
+                    if(results[i].text.toLowerCase().includes('supra')){
+                        newResultsShort[newResultsShort.length] = results[i].search("<*>",{matchWildcards : true});
                     } else {
                         newResults.push(results[i]);
                     }
@@ -444,29 +449,29 @@ function applyCnformatPreference(optionNo, callback){
                         });
                     };
                 };
-                for (let i = 0; i < newResultsShort.length; i++) {
-                    newResultsShort[i].load('font/italic, font/underline');
-                }
-                return context.sync().then(function(){
-                    for (let i = 0; i < newResultsShort.length; i++) {
-                        newResultsShort[i].items.forEach(function(r){
-                            if (prefsObj[3].values[optionNo].rule == "italic"){
-                                r.font.set({
-                                    italic: true,
-                                    underline: "None"
-                                });
-                            } else if (prefsObj[3].values[optionNo].rule == "underline"){
-                                r.font.set({
-                                    underline: "Single",
-                                    italic: false
-                                });
-                            };      
-                        })                  
-                    }
-                    return context.sync().then(function(){
-                        callback();
-                    });
-                })
+                // for (let i = 0; i < newResultsShort.length; i++) {
+                //     newResultsShort[i].load('font/italic, font/underline');
+                // }
+                // return context.sync().then(function(){
+                //     for (let i = 0; i < newResultsShort.length; i++) {
+                //         newResultsShort[i].items.forEach(function(r){
+                //             if (prefsObj[3].values[optionNo].rule == "italic"){
+                //                 r.font.set({
+                //                     italic: true,
+                //                     underline: "None"
+                //                 });
+                //             } else if (prefsObj[3].values[optionNo].rule == "underline"){
+                //                 r.font.set({
+                //                     underline: "Single",
+                //                     italic: false
+                //                 });
+                //             };      
+                //         })                  
+                //     }
+                //     return context.sync().then(function(){
+                //         callback();
+                //     });
+                // })
             });
         });
     })
