@@ -252,17 +252,18 @@ function applyProfile(){
         $("#apply-profile span").text("Applying...");
         var selectedPrefs = profilesArray[profNo].prefs.slice("");
         applyFontPreference(selectedPrefs[1], function(){
-            applyAlignmentPreference(selectedPrefs[2], function(){});
-        });
-        applySentenceSpacingPreference(selectedPrefs[0], function(){
-            applycnparPreference(selectedPrefs[4], function(){
-                applyCnformatPreference(selectedPrefs[3],function(){
-                        $("#apply-profile span").text("Apply Profile Preferences");
-                        $("#apply-profile").removeAttr("disabled");
-                        notifyMessage();
-                });
+            applyAlignmentPreference(selectedPrefs[2], function(){
+                applySentenceSpacingPreference(selectedPrefs[0], function(){
+                    applycnparPreference(selectedPrefs[4], function(){
+                        applyCnformatPreference(selectedPrefs[3],function(){
+                                $("#apply-profile span").text("Apply Profile Preferences");
+                                $("#apply-profile").removeAttr("disabled");
+                                notifyMessage();
+                        });
+                    });
+                });    
             });
-        });    
+        });
     } else {
         errorMessage();
     };
@@ -275,35 +276,37 @@ function applySentenceSpacingPreference(optionNo, callback){
         
         var rule = prefsObj[0].values[optionNo].rule;
         var paras = context.document.body.paragraphs;
-        paras.load('text');
+        context.load(paras, 'text')
         return context.sync().then(function () {
             var res = [];
             paras.items.forEach(function(para){
-                var searchTermsComplete = [];
-                var searchTerms = [];
-                var revStr = para.text.split('').reverse().join('');
-                var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
-                var myArray;
-                while ((myArray = reverseRexexp.exec(revStr)) !== null) {
-                    var result = myArray[0];
-                    searchTermsComplete.push(result.split('').reverse().join('').toLocaleLowerCase())
-                }
-
-                let cur;
-                searchTermsComplete.sort().forEach(function(x) {
-                    if (!x.startsWith(cur)) {
-                        searchTerms.push(x);
-                        cur = x
+                if (para.text.length >100) {
+                    var searchTermsComplete = [];
+                    var searchTerms = [];
+                    var revStr = para.text.split('').reverse().join('');
+                    var reverseRexexp = /\b\w+\b(“?|\(?)(\s*)(\.|”\.)(?!rj )(?!rM )(?!sm )(?!srm )(?!rd )(?!rs )(?!ssim )(?!de |de\.)(?!di |di\.)(?!tc |tc\.)(?!rtpr |rtpr\.)(?!v )(?!lac)(?!ppa |ppa\.)(?!qse )(?!on )(?!xe )(?!e\.i)(?!m\.a)(?!m\.p)(?!\w+@)(?!cni )(?!oc )(?!proc)(?!tsid)(?!www)(?!Y\.N)(?!C\.S)(?!S\.U)(?!K\.U)(?![A-Z] )(?![A-Z]\.)(?![A-Z]$)(?![A-Z]\()(?!naj\()(?!bef\()(?!ram\()(?!rpa\()(?!yam\()(?!nuj\()(?!luj\()(?!gua\()(?!tpes\()(?!pes\()(?!tco\()(?!von\()(?!ced\()(?!tra )/gi
+                    var myArray;
+                    while ((myArray = reverseRexexp.exec(revStr)) !== null) {
+                        var result = myArray[0];
+                        searchTermsComplete.push(result.split('').reverse().join('').toLocaleLowerCase())
                     }
-                })
 
-                // Push search Results into res array
-                for (var index = 0; index < searchTerms.length; index++) {
-                    res.push(para.search(searchTerms[index], {matchWildcards: false}));
-                };
+                    let cur;
+                    searchTermsComplete.sort().forEach(function(x) {
+                        if (!x.startsWith(cur)) {
+                            searchTerms.push(x);
+                            cur = x
+                        }
+                    })
+
+                    // Push search Results into res array
+                    for (var index = 0; index < searchTerms.length; index++) {
+                        res.push(para.search(searchTerms[index], {matchWildcards: false}));
+                    };
+                }
             })
             for (let index = 0; index < res.length; index++) {
-                res[index].load('items');   
+                res[index].load('font/italic, font/underline, text, hyperlink');   
             }
             return context.sync().then(function(){
                 for (let index = 0; index < res.length; index++) {
@@ -377,7 +380,7 @@ function applyAlignmentPreference(optionNo, callback){
     Word.run(function (context) {
         var rule = prefsObj[2].values[optionNo].rule;
         var paras = context.document.body.paragraphs;
-        paras.load("items/alignment");
+        paras.load("alignment");
         return context.sync().then(function () {            
             paras.items.forEach(function (para) {
                 if (para.alignment != "Centered" && para.alignment != rule){
@@ -408,7 +411,7 @@ function applyCnformatPreference(optionNo, callback){
             res.push(context.document.body.search("<[iI]d>.",{matchWildcards: true}));
             res.push(context.document.body.search("<[iI]bid>.",{matchWildcards: true}));
             for (let i =0; i<res.length; i++){
-                res[i].load();
+                res[i].load('font/italic, font/underline, text');
             };
             return context.sync().then(function () {
                 var results = [];
@@ -442,7 +445,7 @@ function applyCnformatPreference(optionNo, callback){
                     };
                 };
                 for (let i = 0; i < newResultsShort.length; i++) {
-                    newResultsShort[i].load();
+                    newResultsShort[i].load('font/italic, font/underline');
                 }
                 return context.sync().then(function(){
                     for (let i = 0; i < newResultsShort.length; i++) {
@@ -478,7 +481,7 @@ function applyCnformatPreference(optionNo, callback){
 function applycnparPreference(optionNo, callback){
     Word.run(function (context) {
         let paras = context.document.body.paragraphs;
-        paras.load('items');
+        paras.load('text');
         return context.sync().then(function () {
             var rangeCollects = [];
             var rangeCollectsAround = [];
@@ -500,10 +503,10 @@ function applycnparPreference(optionNo, callback){
             })
             
             for (let index = 0; index < rangeCollects.length; index++) {
-                rangeCollects[index].load();
+                rangeCollects[index].load('text, font/underline, font/italic');
             }
             for (let index = 0; index < rangeCollectsAround.length; index++) {
-                rangeCollectsAround[index].load();
+                rangeCollectsAround[index].load('text, font/underline, font/italic');
             }
             return context.sync().then(function(){
                 var allRanges = [];
