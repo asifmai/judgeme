@@ -251,14 +251,14 @@ function applyProfile(){
         $("#apply-profile").attr("disabled", "disabled");
         $("#apply-profile span").text("Applying...");
         var selectedPrefs = profilesArray[profNo].prefs.slice("");
-        // applyFontPreference(selectedPrefs[1], function(){
-            // console.log('Font Preference Applied')
-            // applyAlignmentPreference(selectedPrefs[2], function(){
-                // console.log('Alignment Preference Applied')
-                // applySentenceSpacingPreference(selectedPrefs[0], function(){
-                    // console.log('Spacing Preference Applied')
+        applyFontPreference(selectedPrefs[1], function(){
+            console.log('Font Preference Applied')
+            applyAlignmentPreference(selectedPrefs[2], function(){
+                console.log('Alignment Preference Applied')
+                applySentenceSpacingPreference(selectedPrefs[0], function(){
+                    console.log('Spacing Preference Applied')
                     // applycnparPreference(selectedPrefs[4], function(){
-                        // console.log('Paranthesis Preference Applied')
+                        console.log('Paranthesis Preference Applied')
                         applyCnformatPreference(selectedPrefs[3],function(){
                             console.log('Case Name Preference Applied')
                                 $("#apply-profile span").text("Apply Profile Preferences");
@@ -266,9 +266,9 @@ function applyProfile(){
                                 notifyMessage();
                         });
                     // });
-                // });    
-            // });
-        // });
+                });    
+            });
+        });
     } else {
         errorMessage();
     };
@@ -426,14 +426,14 @@ function applyCnformatPreference(optionNo, callback){
                     })
                 }
                 var newResults= [];
-                var newResultsShort = [];
+                // var newResultsShort = [];
                 // console.log(results.length)
                 for (let i = 0; i < results.length; i++) {
-                    if(results[i].text.toLowerCase().includes('supra')){
-                        newResultsShort[newResultsShort.length] = results[i].search("<*>",{matchWildcards : true});
-                    } else {
+                    // if(results[i].text.toLowerCase().includes('supra')){
+                        // newResultsShort.push(results[i].search("<*>", { matchWildcards: true }));
+                    // } else {
                         newResults.push(results[i]);
-                    }
+                    // }
                 };
 
                 for (let i=0; i < newResults.length; i++){
@@ -468,9 +468,9 @@ function applyCnformatPreference(optionNo, callback){
                 //             };      
                 //         })                  
                 //     }
-                //     return context.sync().then(function(){
-                //         callback();
-                //     });
+                    return context.sync().then(function(){
+                        callback();
+                    });
                 // })
             });
         });
@@ -494,6 +494,10 @@ function applycnparPreference(optionNo, callback){
                 if (para.text.length > 100){
                     var searchTerms = findAllCasesComplete(para.text);
                     var searchTermsAround = findAllCasesCompleteAround(para.text);
+                    // console.log("Search Terms Length")
+                    // console.log(searchTerms.length)
+                    // console.log(searchTermsAround.length)
+                    // console.log(para.text)
                     if (searchTerms.length > 0){
                         for (let index = 0; index < searchTerms.length; index++) {
                             rangeCollects.push(para.search(searchTerms[index], {matchWildcards: false}));
@@ -514,6 +518,9 @@ function applycnparPreference(optionNo, callback){
                 rangeCollectsAround[index].load('text, font/underline, font/italic');
             }
             return context.sync().then(function(){
+                // console.log("Range Collections Length")
+                // console.log(rangeCollects.length)
+                // console.log(rangeCollectsAround.length)
                 var allRanges = [];
                 var allRangesAround = [];
                 for (let index = 0; index < rangeCollects.length; index++) {
@@ -527,8 +534,19 @@ function applycnparPreference(optionNo, callback){
                     })
                 }
                 var rule = prefsObj[4].values[optionNo].rule;
-
-                for (let index = 0; index < allRanges.length; index++) {
+                // console.log("Ranges Length")
+                // console.log(allRanges.length)
+                // console.log(allRangesAround.length)
+                // console.log("Ranges")
+                // for (let i = 0; i < allRanges.length; i++) {
+                //     console.log(allRanges[i].text)
+                // }
+                // console.log("Ranges Around")
+                // for (let i = 0; i < allRangesAround.length; i++) {
+                //     console.log(allRangesAround[i].text)
+                // }
+                // if (allRanges.length == allRangesAround.length){
+                    for (let index = 0; index < allRanges.length; index++) {
                     if (rule == "yes"){
                         if (allRangesAround[index]){
                             if(allRangesAround[index].text[0] != "("){
@@ -554,8 +572,8 @@ function applycnparPreference(optionNo, callback){
                             })
                         }
                     }
-                }
-
+                // }
+            }
                 return context.sync().then(function(){
                     callback();
                 });
